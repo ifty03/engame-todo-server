@@ -3,7 +3,7 @@ const app = express();
 const cors = require("cors");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // middleware
 app.use(cors());
@@ -29,8 +29,34 @@ const run = async () => {
     // add task in database
     app.post("/addTask", async (req, res) => {
       const task = req.body;
-      console.log(task);
       const result = await taskCollection.insertOne(task);
+      res.send(result);
+    });
+    // get all task
+    app.get("/task", async (req, res) => {
+      const query = {};
+      const result = await taskCollection.find(query).toArray();
+      res.send(result);
+    });
+    // update and task
+    app.put("/task/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateTask = req.body;
+      const updateDoc = {
+        $set: updateTask,
+      };
+      const result = await taskCollection.updateOne(filter, updateDoc, options);
+      res.send(result);
+    });
+
+    // load single task for update
+    app.get("/task/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await taskCollection.findOne(query);
       res.send(result);
     });
   } finally {
