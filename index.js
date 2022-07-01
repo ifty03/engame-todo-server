@@ -34,16 +34,17 @@ const run = async () => {
       res.send(result);
     });
     // get all task
-    app.get("/allTask/:id", async (req, res) => {
-      const email = req.params.id;
-      const query = { email: email };
+    app.get("/allTask", async (req, res) => {
+      const email = req.query.email;
+      const complete = req.query.complete;
+      console.log(complete);
+      const query = { email: email, complete: false };
       const result = await taskCollection.find(query).toArray();
       res.send(result);
     });
     // update and task
     app.put("/task/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
       const updateTask = req.body;
@@ -70,26 +71,31 @@ const run = async () => {
     });
 
     // delete a complete task
-    app.delete("/task/:_id", async (req, res) => {
-      const id = req.params._id;
-      const query = { _id: ObjectId(id) };
-      const result = await taskCollection.deleteOne(query);
+    app.put("/task/:_id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const options = { upsert: true };
+      const updateTask = req.body;
+      const updateDoc = {
+        $set: updateTask,
+      };
+      const result = await taskCollection.updateOne(filter, updateDoc, options);
       res.send(result);
     });
 
     // get completed task
     app.get("/completedTask/:id", async (req, res) => {
       const email = req.params.id;
-      const query = { email: email };
-      const result = await completeCollection.find(query).toArray();
+      const query = { email: email, complete: true };
+      const result = await taskCollection.find(query).toArray();
       res.send(result);
     });
 
     // delete a complete task
     app.delete("/completedTask/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: id };
-      const result = await completeCollection.deleteOne(query);
+      const query = { _id: ObjectId(id) };
+      const result = await taskCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
