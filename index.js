@@ -25,6 +25,7 @@ const run = async () => {
   await client.connect();
   try {
     const taskCollection = client.db("taskDB").collection("task");
+    const completeCollection = client.db("taskDB").collection("completeTask");
 
     // add task in database
     app.post("/addTask", async (req, res) => {
@@ -57,6 +58,36 @@ const run = async () => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await taskCollection.findOne(query);
+      res.send(result);
+    });
+
+    // complete task method
+    app.post("/completeTask", async (req, res) => {
+      const completeTask = req.body;
+      const result = await completeCollection.insertOne(completeTask);
+      res.send(result);
+    });
+
+    // delete a complete task
+    app.delete("/task/:_id", async (req, res) => {
+      const id = req.params._id;
+      const query = { _id: ObjectId(id) };
+      const result = await taskCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // get completed task
+    app.get("/completedTask", async (req, res) => {
+      // const email = req.query;
+      const result = await completeCollection.find({}).toArray();
+      res.send(result);
+    });
+
+    // delete a complete task
+    app.delete("/completedTask/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: id };
+      const result = await completeCollection.deleteOne(query);
       res.send(result);
     });
   } finally {
