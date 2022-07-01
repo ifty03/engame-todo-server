@@ -34,8 +34,9 @@ const run = async () => {
       res.send(result);
     });
     // get all task
-    app.get("/task", async (req, res) => {
-      const query = {};
+    app.get("/allTask/:id", async (req, res) => {
+      const email = req.params.id;
+      const query = { email: email };
       const result = await taskCollection.find(query).toArray();
       res.send(result);
     });
@@ -77,9 +78,10 @@ const run = async () => {
     });
 
     // get completed task
-    app.get("/completedTask", async (req, res) => {
-      // const email = req.query;
-      const result = await completeCollection.find({}).toArray();
+    app.get("/completedTask/:id", async (req, res) => {
+      const email = req.params.id;
+      const query = { email: email };
+      const result = await completeCollection.find(query).toArray();
       res.send(result);
     });
 
